@@ -1,0 +1,13 @@
+Python
+pycache/
+*.pyc
+.venv/
+venv/
+
+Terraform
+*.tfstate
+.tfstate.
+.terraform/
+
+Node (para Newman)
+node_modules/
