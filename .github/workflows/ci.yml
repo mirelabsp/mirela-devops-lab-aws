@@ -1,0 +1,41 @@
+name: CI - DevOps Lab AWS (mínimo)
+
+on:
+  push:
+    branches: ['**']        # roda em qualquer branch
+  pull_request:
+    branches: ['main']      # roda em PRs direcionados para main
+
+jobs:
+  ci-minimo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Validar estrutura mínima do repositório
+        shell: bash
+        run: |
+          echo "Estrutura do repo:"
+          ls -R
+
+          # Itens obrigatórios
+          MUST_HAVE=("README.md" ".gitignore" "app" "infra" "tests" ".github/workflows")
+
+          FALHOU=0
+          for item in "${MUST_HAVE[@]}"; do
+            if [ -e "$item" ]; then
+              echo "OK   -> $item encontrado"
+            else
+              echo "ERRO -> $item NÃO encontrado"
+              FALHOU=1
+            fi
+          done
+
+          if [ "$FALHOU" -ne 0 ]; then
+            echo "Falha na validação: estrutura mínima ausente."
+            exit 1
+          fi
+
+          echo "Validação mínima concluída com sucesso."
