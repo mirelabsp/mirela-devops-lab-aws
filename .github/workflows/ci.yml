@@ -41,7 +41,7 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
-    needs: ci-minimo # Depende da validação de estrutura
+    needs: ci-minimo
 
     steps:
       - name: Checkout do código
@@ -59,3 +59,22 @@ jobs:
       - name: Executar testes Postman contra container
         run: |
           newman run tests/postman/health-check.postman_collection.json --env-var baseUrl=http://localhost:5000
+
+  docker-publish:
+    runs-on: ubuntu-latest
+    needs: docker-build # Só publica se o build e testes passarem!
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login no DockerHub
+        # Usando os Secrets configurados no GitHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build da imagem Docker (com tag oficial)
+        # O build precisa usar a tag completa para o push funcionar
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-lab-api:latest ./app
+
+      - name: Push para DockerHub
+        # Envia a imagem para o seu repositório oficial
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-lab-api:latest
