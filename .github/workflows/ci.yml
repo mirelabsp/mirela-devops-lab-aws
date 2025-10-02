@@ -2,14 +2,13 @@ name: CI - DevOps Lab AWS (mínimo)
 
 on:
   push:
-    branches: ['**']        # roda em qualquer branch
+    branches: ['**']
   pull_request:
-    branches: ['main']      # roda em PRs direcionados para main
+    branches: ['main']
 
 jobs:
   ci-minimo:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -39,3 +38,38 @@ jobs:
           fi
 
           echo "Validação mínima concluída com sucesso."
+
+  test-api:
+    runs-on: ubuntu-latest
+    needs: ci-minimo
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Instalar dependências da API
+        run: |
+          cd app
+          pip install -r requirements.txt
+
+      - name: Instalar Newman (CLI Postman)
+        # Newman requer NodeJS, o ambiente ubuntu-latest já vem com ele
+        run: npm install -g newman
+
+      - name: Rodar API em background
+        run: |
+          cd app
+          # Usa nohup e & para rodar a API em background
+          nohup python main.py &
+          echo "API rodando em background. Aguardando 5 segundos para subir..."
+          # Necessário esperar a API iniciar antes de testar
+          sleep 5
+
+      - name: Executar testes Postman
+        run: |
+          newman run tests/postman/health-check.postman_collection.json
