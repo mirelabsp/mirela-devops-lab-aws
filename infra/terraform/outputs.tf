@@ -12,3 +12,8 @@ output "security_group_id" {
   description = "ID do Security Group criado"
   value       = aws_security_group.devops_lab_sg.id
 }
+
+output "ec2_public_ip" {
+  description = "IP público da instância EC2"
+  value       = aws_instance.devops_lab_ec2.public_ip
+}
