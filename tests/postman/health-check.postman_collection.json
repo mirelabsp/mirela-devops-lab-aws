@@ -10,7 +10,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/health",
+          "raw": "{{baseUrl}}/health",
           "protocol": "http",
           "host": ["localhost"],
           "port": "5000",
